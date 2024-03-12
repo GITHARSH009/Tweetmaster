@@ -23,7 +23,6 @@ const TwitterPost=new mongoose.Schema({
     },
     Email:{
         type:String,
-        required:true,
         lowercase:true,
         trim:true
     }
