@@ -1,4 +1,10 @@
 const mongoose=require('mongoose');
+const date=new Date();
+var fir=date.getDate();
+fir=fir.toString();
+var sec=date.getMonth()+1;
+sec=sec%12;
+fir=fir+sec;
 
 const userdata=new mongoose.Schema({
     Username:{
@@ -39,6 +45,21 @@ const userdata=new mongoose.Schema({
     dob:{
         type:String,
         trim:true
+    },
+    count:{
+        type:Number,
+        default:60,
+        required:true
+    },
+    bt:{
+         type:Number,
+         default:0,
+         required:true
+    },
+    Exp:{
+        type:String,
+        default:fir,
+        required:true
     }
 },{
     timestamps:true

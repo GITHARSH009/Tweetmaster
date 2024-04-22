@@ -1,7 +1,11 @@
 const express=require('express');
 const router=new express.Router();
 const post=require("./model");
-const userdatas=require("./modelt")
+const userdatas=require("./modelt");
+// const planuser=require("./planuser");
+const dotenv=require('dotenv')
+dotenv.config();
+
 
 router.post("/post",async(req,res)=>{
     try {
@@ -52,6 +56,29 @@ router.get("/loggedInUser",async(req,res)=>{
     const email=req.query.email;
     const user=await userdatas.find({Email:email});
     await res.send(user)
+});
+router.patch("/updone/:Email",async(req,res)=>{
+      const filter=req.params;
+      const profile=req.body;
+      const options={upsert:true};
+      const updateDoc={$set:profile};
+      const result=await userdatas.updateOne(filter,updateDoc,options);
+      res.send(result);
+});
+
+router.patch("/exp/:Email",async(req,res)=>{
+    try {
+      const filter=req.params;
+      const profile=req.body;
+      const options={upsert:true};
+      const updateDoc={$set:profile};
+      const result=await userdatas.updateOne(filter,updateDoc,options);
+      res.send(result);   
+    } catch (error) {
+        res.status(402).send(`Expiration Error:${error}`);
+    }
 })
+
+
 
 module.exports=router;

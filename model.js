@@ -25,7 +25,12 @@ const TwitterPost=new mongoose.Schema({
         type:String,
         lowercase:true,
         trim:true
-    }
+    },
+    bt:{
+        type:Number,
+        default:0,
+        required:true
+   }
 },{
     timestamps:true
 });
