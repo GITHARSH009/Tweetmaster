@@ -3,6 +3,7 @@ const router=new express.Router();
 const post=require("./model");
 const userdatas=require("./modelt");
 // const planuser=require("./planuser");
+const Notification = require("./model/notificationModel");
 const dotenv=require('dotenv')
 dotenv.config();
 
@@ -77,8 +78,47 @@ router.patch("/exp/:Email",async(req,res)=>{
     } catch (error) {
         res.status(402).send(`Expiration Error:${error}`);
     }
-})
+});
 
 
+router.get("/notifications/:Email", async (req, res) => {
+    try {
+        const email = req.params.Email;
+        const notifications = await Notification.find({
+            $or: [
+                {notifyTo:"everyone"},
+                {notifyTo: email}
+            ]
+        }).sort({ timestamp:-1});
+        res.status(200).send(notifications);
+    } catch (error) {
+        res.status(402).send(`Unknown Error:${error}`);
+    }
+});
+
+router.post("/notifications", async (req, res) => {
+    try {
+        const newNotification = new Notification(req.body);
+        await newNotification.save();
+        res.status(201).send(newNotification);
+    } catch (error) {
+        res.status(402).send(`Unknown Error:${error}`);
+    }
+});
+
+
+router.get("/getuser/:Email",async(req,res)=>{
+    try {
+        const email=req.params.Email;
+        const user=await userdatas.find({Email:{$nin:email}});
+        if(user.length>0){
+            res.status(200).send(user);
+        }else{
+            res.status(404).send("User not found");
+        }
+    } catch (error) {
+        res.status(402).send(`Unknown Error:${error}`);
+    }
+});
 
 module.exports=router;

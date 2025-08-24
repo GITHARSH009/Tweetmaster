@@ -17,7 +17,6 @@ fir=fir.toString();
 var sec=date.getMonth()+1;
 sec=sec%12;
 fir=fir+sec;
-
 const instance = new razorpay({
     key_id:process.env.RAZORPAY_APT_KEY,
     key_secret:process.env.RAZORPAY_API_SECRET,
