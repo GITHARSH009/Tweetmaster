@@ -4,13 +4,17 @@ const app=express()
 const dotenv=require('dotenv')
 dotenv.config();
 const port=process.env.Port || 8002;
-const userdatas=require("./modelt");
+const userdatas=require("./model/userModal");
 const razorpay =require("razorpay");
 const crypto =require("crypto");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-require("./conn");
+require("./config/database");
+const redisClient=require("./config/redis");
+redisClient.connect().catch((err)=>{
+    console.log('Error connecting to Redis:', err);
+});
 const date=new Date();
 var fir=date.getDate();
 fir=fir.toString();

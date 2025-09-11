@@ -7,4 +7,4 @@ mongoose.connect(url).then(()=>{
     console.log("Connected Successfully");
 }).catch((err)=>{
     console.error(`Expected Error:${err}`);
-})
+});

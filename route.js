@@ -1,25 +1,34 @@
 const express=require('express');
 const router=new express.Router();
-const post=require("./model");
-const userdatas=require("./modelt");
-// const planuser=require("./planuser");
+const post=require("./model/postModal");
+const userdatas=require("./model/userModal");
 const Notification = require("./model/notificationModel");
-const dotenv=require('dotenv')
+const dotenv=require('dotenv');
 dotenv.config();
+const {getCache,setCache,delCache}=require("./service/cacheService");
+const cacheKey="allPosts";
 
+const verifyFirebaseToken = require('./middleware/authmiddleware');
+// router.use(verifyFirebaseToken);
 
 router.post("/post",async(req,res)=>{
     try {
         const newpost=new post(req.body);
         await newpost.save();
+        await delCache(cacheKey);
         res.status(201).send(newpost);
     } catch (error) {
         res.status(402).send(`Unknown Error:${error}`);
     }
 });
-router.get("/post",async(req,res)=>{
+router.get("/post",verifyFirebaseToken,async(req,res)=>{
     try {
+        const cachedData=await getCache(cacheKey);
+        if(cachedData!==null){
+            return res.status(200).send(cachedData);
+        }
         const getpost=(await post.find({})).reverse();
+        await setCache(cacheKey,getpost);
         res.status(201).send(getpost);
     } catch (error) {
         res.status(402).send(`Unknown Error:${error}`);
