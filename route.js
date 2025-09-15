@@ -7,8 +7,10 @@ const dotenv=require('dotenv');
 dotenv.config();
 const {getCache,setCache,delCache}=require("./service/cacheService");
 const cacheKey="allPosts";
+const fetchWithRetry = require('./utility/fetchWithRetry');
 
 const verifyFirebaseToken = require('./middleware/authmiddleware');
+// router.use(verifyFirebaseToken);
 
 // News API endpoint
 router.get("/news", async (req, res) => {
@@ -54,7 +56,61 @@ router.get("/news", async (req, res) => {
     }
 });
 
-// router.use(verifyFirebaseToken);
+// Add this route to your backend router
+router.get("/movies", async (req, res) => {
+    try {
+        const { category = 'popular', query = '', page = 1 } = req.query;
+        
+        const MOVIES_API_KEY = process.env.MOVIES_API_KEY;
+        
+        if (!MOVIES_API_KEY) {
+            return res.status(500).json({ error: 'Movies API key not configured' });
+        }
+
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        let movieApiUrl;
+
+        // Handle search vs category endpoints
+        if (query.trim()) {
+            movieApiUrl = `${BASE_URL}/search/movie?api_key=${MOVIES_API_KEY}&query=${encodeURIComponent(query)}&page=${page}`;
+        } else {
+            // Map category names to API endpoints
+            const categoryMap = {
+                'popular': 'popular',
+                'upcoming': 'upcoming',
+                'now_playing': 'now_playing',
+                'top_rated': 'top_rated'
+            };
+            
+            const apiCategory = categoryMap[category] || 'popular';
+            movieApiUrl = `${BASE_URL}/movie/${apiCategory}?api_key=${MOVIES_API_KEY}&page=${page}`;
+        }
+        
+        // Use the reusable retry utility
+        const response = await fetchWithRetry(movieApiUrl, {
+            maxRetries: 3,
+            timeout: 6000
+        });
+        
+        const data = await response.json();
+        
+        // Optional: Filter movies with posters and valid content
+        if (data.results) {
+            const filteredMovies = data.results.filter(
+                movie => movie.poster_path && movie.title && movie.overview
+            );
+            data.results = filteredMovies;
+        }
+        
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Movies fetch error:', error);
+        res.status(500).json({ 
+            error: 'Unable to fetch movies at this time',
+            message: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
 
 router.post("/post",async(req,res)=>{
     try {
