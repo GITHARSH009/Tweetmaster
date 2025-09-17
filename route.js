@@ -123,7 +123,7 @@ router.post("/post",async(req,res)=>{
     }
 });
 
-router.get("/post",verifyFirebaseToken,async(req,res)=>{
+router.get("/post",async(req,res)=>{
     try {
         const cachedData=await getCache(cacheKey);
         if(cachedData!==null){
