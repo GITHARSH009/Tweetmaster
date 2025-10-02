@@ -66,22 +66,18 @@ app.post("/paymentverification",async(req,res)=>{
    const body = razorpay_order_id + "|" +razorpay_payment_id;
    const expectedsignature =crypto.createHmac('sha256',process.env.RAZORPAY_API_SECRET).update(body.toString()).digest('hex');
    if(expectedsignature === razorpay_signature){
-    if(Amt==44900){
-         cnt=120;
-         bet=0;
-    }
-    else if(Amt==124900){
-        cnt=500;
-        bet=1;
+    if(Amt==24900){
+         cnt=30;
+         bet=1;
     }
     else{
-        cnt=5000000;
+        cnt=45;
         bet=1;
     }
     const changing=await userdatas.updateMany({Email:mail},{$set:{count:cnt,bt:bet,Exp:fir}});
     console.log(changing);
     // res.status(200).send(changing); 
-    res.redirect(`http://localhost:3000/Home/paymentsuccess?reference=${razorpay_payment_id}`);
+    res.redirect(`https://chat-town.netlify.app/Home/paymentsuccess?reference=${razorpay_payment_id}`);
    }
    else{
     res.status(400).send(`Signature:${razorpay_signature} and the expected one is ${expectedsignature}`);
