@@ -42,7 +42,7 @@ const verifyFirebaseToken = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('Error verifying Firebase token:', error);
+    // console.error('Error verifying Firebase token:', error);
     return res.status(401).json({ 
       error: 'Unauthorized', 
       message: 'Invalid or expired token' 

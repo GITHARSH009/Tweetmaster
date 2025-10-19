@@ -1,15 +1,15 @@
 const express=require('express');
 const cors=require('cors');
-const app=express()
+const app=express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 const dotenv=require('dotenv')
 dotenv.config();
 const port=process.env.Port || 8002;
 const userdatas=require("./model/userModal");
 const razorpay =require("razorpay");
 const crypto =require("crypto");
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
 require("./config/database");
 const redisClient=require("./config/redis");
 redisClient.connect().catch((err)=>{

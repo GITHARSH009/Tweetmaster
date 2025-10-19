@@ -1,4 +1,6 @@
 const express=require('express');
+const mongoose = require('mongoose');
+const checkPostLimit = require('./middleware/checkPostMiddleware');
 const router=new express.Router();
 const post=require("./model/postModal");
 const userdatas=require("./model/userModal");
@@ -112,14 +114,73 @@ router.get("/movies", async (req, res) => {
     }
 });
 
-router.post("/post",async(req,res)=>{
+router.post("/post", 
+    verifyFirebaseToken,
+    checkPostLimit,
+    async(req, res) => {
+    
     try {
-        const newpost=new post(req.body);
+        // Get authenticated user email
+        const authenticatedEmail = req.user.email;
+        
+        // Validate email match
+        if (req.body.Email !== authenticatedEmail) {
+            return res.status(403).json({
+                success: false,
+                message: 'Cannot create post for another user'
+            });
+        }
+        
+        // Step 1: Create post first
+        const newpost = new post({
+            Profile: req.body.Profile,
+            Post: req.body.Post,
+            Photo: req.body.Photo,
+            Username: req.userProfile.Username,
+            Name: req.userProfile.Name,
+            Email: authenticatedEmail,
+            bt: req.userProfile.bt
+        });
+        
         await newpost.save();
-        await delCache(cacheKey);
-        res.status(201).send(newpost);
+        // console.log('✅ Post created:', newpost._id);
+        
+        // Step 2: Decrement count (separate operation)
+        try {
+            await userdatas.findOneAndUpdate(
+                { Email: authenticatedEmail },
+                { $inc: { count: -1 } }
+            );
+            console.log('✅ Count decremented');
+        } catch (countError) {
+            // If count update fails, log but don't fail the request
+            console.error('⚠️ Count update failed:', countError);
+            // Post is still created successfully
+        }
+        
+        // Step 3: Clear cache
+        try {
+            await delCache(cacheKey);
+        } catch (cacheError) {
+            console.error('⚠️ Cache clear failed:', cacheError);
+            // Not critical
+        }
+        
+        // Return success
+        res.status(201).json({
+            success: true,
+            post: newpost,
+            remainingPosts: Math.max(0, req.userProfile.count - 1),
+            message: "Post created successfully"
+        });
+        
     } catch (error) {
-        res.status(402).send(`Unknown Error:${error}`);
+        console.error("❌ Post creation failed:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to create post",
+            error: error.message
+        });
     }
 });
 
