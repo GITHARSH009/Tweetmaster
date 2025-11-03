@@ -15,6 +15,9 @@ const redisClient=require("./config/redis");
 redisClient.connect().catch((err)=>{
     console.log('Error connecting to Redis:', err);
 });
+const verifyFirebaseToken = require('./middleware/authmiddleware');
+const {addToQueue}=require("./service/queueService/queue");
+const {emailWorker}=require("./service/queueService/worker");
 const date=new Date();
 var fir=date.getDate();
 fir=fir.toString();
@@ -31,6 +34,7 @@ let Amt;
 let cnt;
 let bet;
 let mail;
+let name="";
 
 
 const router=require("./route");
@@ -40,10 +44,12 @@ app.use(router);
 app.get("/",(req,res)=>{
     res.send(`Hello World`);
 });
-app.get("/api/getkey",(req,res)=>{
+app.get("/api/getkey",verifyFirebaseToken,(req,res)=>{
+    name=req.user.name;
+    mail=req.user.email;
     return res.status(200).json({key:process.env.RAZORPAY_APT_KEY})
 });
-app.post("/checkout",async(req,res)=>{
+app.post("/checkout",verifyFirebaseToken,async(req,res)=>{
 
     const options ={
         amount:Number(req.body.amount*100),
@@ -52,11 +58,9 @@ app.post("/checkout",async(req,res)=>{
     const order = await instance.orders.create(options).catch((err)=>{
         console.log(`Payment Error:${err.message}`);
     });
-    console.log(order);
     res.status(200).json({
         success:true,order
-    })
-    mail=req.body.email;
+    });
     Amt=Number(req.body.amount*100);
 })
 
@@ -75,7 +79,16 @@ app.post("/paymentverification",async(req,res)=>{
         bet=1;
     }
     const changing=await userdatas.updateMany({Email:mail},{$set:{count:cnt,bt:bet,Exp:fir}});
-    console.log(changing);
+    try {
+        await addToQueue({
+            userEmail: mail,
+            userName: name,
+            amount: Amt / 100,
+            transactionId: razorpay_payment_id,
+        });
+    } catch (error) {
+        console.error('Error adding email job to queue:', error);
+    }
     // res.status(200).send(changing); 
     res.redirect(`https://chat-town.netlify.app/Home/paymentsuccess?reference=${razorpay_payment_id}`);
    }
