@@ -1,14 +1,19 @@
-const {Queue} =require('bullmq');
+const {Queue} = require('bullmq');
 require('dotenv').config();
-const emailQueue=new Queue('emailQueue');
 
-const addToQueue=async(emailData)=>{
+const emailQueue = new Queue('emailQueue', {
+    connection: {
+        url: process.env.REDIS_URL
+    }
+});
+
+const addToQueue = async(emailData) => {
     try {
-    await emailQueue.add('sendSuccessEmail',emailData);
-    console.log("Job added to email queue");   
+        await emailQueue.add('sendSuccessEmail', emailData);
+        console.log("Job added to email queue");   
     } catch (error) {
         console.error("Error adding job to email queue:", error);
     }
 }
 
-module.exports={addToQueue};
+module.exports = {addToQueue};
