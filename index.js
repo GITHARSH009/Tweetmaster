@@ -42,8 +42,12 @@ const router=require("./route");
 app.use(router);
 
 app.get("/",(req,res)=>{
-    res.send(`Hello World`);
+    res.send(`Welcome to the Chat Town`);
 });
+app.get("/health",(req,res)=>{
+    res.send(`Service is Up and Running`);
+});
+
 app.get("/api/getkey",verifyFirebaseToken,(req,res)=>{
     name=req.user.name;
     mail=req.user.email;
@@ -99,7 +103,11 @@ app.post("/paymentverification",async(req,res)=>{
    }
 })
 
-
-app.listen(port,()=>{
+if(require.main===module){
+   app.listen(port,()=>{
     console.log(`Server is running`)
-})
+});
+}
+
+
+module.exports={app}
