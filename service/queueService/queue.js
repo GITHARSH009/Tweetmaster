@@ -16,4 +16,4 @@ const addToQueue = async(emailData) => {
     }
 }
 
-module.exports = {addToQueue};
+module.exports = {addToQueue,emailQueue};
