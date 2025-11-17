@@ -1,4 +1,5 @@
 const userdatas = require("../model/userModal");
+const {logger}=require("./logger");
 
 const checkPostLimit = async (req, res, next) => {
     try {
@@ -53,7 +54,7 @@ const checkPostLimit = async (req, res, next) => {
         next();
         
     } catch (error) {
-        // console.error("Post limit check error:", error);
+        // logger.error("Post limit check error:", error);
         res.status(500).json({ 
             success: false, 
             message: "Failed to verify post limit",

@@ -2,6 +2,7 @@ const {Worker}=require('bullmq');
 require('dotenv').config();
 const {sendEmailNotification}=require("../emailService");
 // const redisClient=require('../../config/redis');
+const {logger}=require("../../middleware/logger");
 
 const emailWorker=new Worker("emailQueue",async(job)=>{
     const {userEmail,userName,amount,transactionId}=job.data;
@@ -13,10 +14,10 @@ const emailWorker=new Worker("emailQueue",async(job)=>{
 });
 
 emailWorker.on('completed',(job,result)=>{
-    console.log(`✅ Email job ${job.id} completed successfully.`);
+    logger.info(`✅ Email job ${job.id} completed successfully.`);
 });
 emailWorker.on('failed',(job,err)=>{
-    console.error(`❌ Email job ${job.id} failed with error:`,err);
+    logger.error(`❌ Email job ${job.id} failed with error:`,err);
 });
 
 module.exports={emailWorker};

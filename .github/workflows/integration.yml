@@ -43,3 +43,4 @@ jobs:
           Port: 8002
           url: "mongodb://127.0.0.1:27017/Twitter"
           REDIS_URL: redis://localhost:6379
+          NODE_ENV: test

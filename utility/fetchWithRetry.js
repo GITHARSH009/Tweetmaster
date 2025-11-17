@@ -1,3 +1,4 @@
+const {logger}=require("../middleware/logger");
 const fetchWithRetry = async (url, options = {}) => {
     const {
         maxRetries = 3,
@@ -15,7 +16,7 @@ const fetchWithRetry = async (url, options = {}) => {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             // Create AbortController for timeout
-            console.log(`Fetch attempt ${attempt + 1}`);
+            logger.info(`Fetch attempt ${attempt + 1}`);
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -39,7 +40,7 @@ const fetchWithRetry = async (url, options = {}) => {
             const isLastAttempt = attempt === maxRetries - 1;
             const isRetryableError = isNetworkError(error);
 
-            console.log(`Fetch attempt ${attempt + 1}/${maxRetries} failed:`, error.message);
+            logger.info(`Fetch attempt ${attempt + 1}/${maxRetries} failed:`, error.message);
 
             // Don't retry on last attempt or non-retryable errors
             if (isLastAttempt || !isRetryableError) {

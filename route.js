@@ -1,5 +1,6 @@
 const express=require('express');
 const mongoose = require('mongoose');
+const {logger}=require("./middleware/logger");
 const checkPostLimit = require('./middleware/checkPostMiddleware');
 const router=new express.Router();
 const post=require("./model/postModal");
@@ -50,7 +51,7 @@ router.get("/news", async (req, res) => {
         
         res.status(200).json(data);
     } catch (error) {
-        console.error('News fetch error:', error);
+        logger.error('News fetch error:', error);
         res.status(500).json({ 
             error: 'Unable to fetch news at this time',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -106,7 +107,7 @@ router.get("/movies", async (req, res) => {
         
         res.status(200).json(data);
     } catch (error) {
-        console.error('Movies fetch error:', error);
+        logger.error('Movies fetch error:', error);
         res.status(500).json({ 
             error: 'Unable to fetch movies at this time',
             message: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -143,7 +144,7 @@ router.post("/post",
         });
         
         await newpost.save();
-        // console.log('✅ Post created:', newpost._id);
+        // logger.info('✅ Post created:', newpost._id);
         
         // Step 2: Decrement count (separate operation)
         try {
@@ -151,10 +152,10 @@ router.post("/post",
                 { Email: authenticatedEmail },
                 { $inc: { count: -1 } }
             );
-            console.log('✅ Count decremented');
+            logger.info('✅ Count decremented');
         } catch (countError) {
             // If count update fails, log but don't fail the request
-            console.error('⚠️ Count update failed:', countError);
+            logger.error('⚠️ Count update failed:', countError);
             // Post is still created successfully
         }
         
@@ -162,7 +163,7 @@ router.post("/post",
         try {
             await delCache(cacheKey);
         } catch (cacheError) {
-            console.error('⚠️ Cache clear failed:', cacheError);
+            logger.error('⚠️ Cache clear failed:', cacheError);
             // Not critical
         }
         
@@ -175,7 +176,7 @@ router.post("/post",
         });
         
     } catch (error) {
-        console.error("❌ Post creation failed:", error);
+        logger.error("❌ Post creation failed:", error);
         res.status(500).json({
             success: false,
             message: "Failed to create post",
