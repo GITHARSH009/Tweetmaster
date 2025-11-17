@@ -1,6 +1,7 @@
 // middleware/authMiddleware.js
 const admin = require('firebase-admin');
 require('dotenv').config();
+const {logger}=require("./logger");
 const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
 
 admin.initializeApp({
@@ -42,7 +43,7 @@ const verifyFirebaseToken = async (req, res, next) => {
 
     next();
   } catch (error) {
-    // console.error('Error verifying Firebase token:', error);
+    // logger.error('Error verifying Firebase token:', error);
     return res.status(401).json({ 
       error: 'Unauthorized', 
       message: 'Invalid or expired token' 

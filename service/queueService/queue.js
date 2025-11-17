@@ -1,5 +1,6 @@
 const {Queue} = require('bullmq');
 require('dotenv').config();
+const {logger}=require("../../middleware/logger");
 
 const emailQueue = new Queue('emailQueue', {
     connection: {
@@ -10,9 +11,9 @@ const emailQueue = new Queue('emailQueue', {
 const addToQueue = async(emailData) => {
     try {
         await emailQueue.add('sendSuccessEmail', emailData);
-        console.log("Job added to email queue");   
+        logger.info("Job added to email queue");   
     } catch (error) {
-        console.error("Error adding job to email queue:", error);
+        logger.error("Error adding job to email queue:", error);
     }
 }
 

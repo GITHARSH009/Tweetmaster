@@ -2,11 +2,12 @@ const mongoose=require('mongoose');
 const url=process.env.url
 const dotenv=require('dotenv')
 dotenv.config();
+const {logger}=require("../middleware/logger");
 
 mongoose.connect(url).then(()=>{
-    console.log("Connected Successfully");
+    logger.info("Connected Successfully");
 }).catch((err)=>{
-    console.error(`Expected Error:${err}`);
+    logger.error(`Expected Error:${err}`);
 });
 
 module.exports={mongoose}

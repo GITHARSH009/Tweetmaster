@@ -4,6 +4,8 @@ const app=express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+const {logger,httpLogger}=require("./middleware/logger");
+app.use(httpLogger);
 const dotenv=require('dotenv')
 dotenv.config();
 const port=process.env.Port || 8002;
@@ -13,7 +15,7 @@ const crypto =require("crypto");
 require("./config/database");
 const redisClient=require("./config/redis");
 redisClient.connect().catch((err)=>{
-    console.log('Error connecting to Redis:', err);
+    logger.info('Error connecting to Redis:', err);
 });
 const verifyFirebaseToken = require('./middleware/authmiddleware');
 const {addToQueue}=require("./service/queueService/queue");
@@ -60,7 +62,7 @@ app.post("/checkout",verifyFirebaseToken,async(req,res)=>{
         currency:"INR",
     };
     const order = await instance.orders.create(options).catch((err)=>{
-        console.log(`Payment Error:${err.message}`);
+        logger.info(`Payment Error:${err.message}`);
     });
     res.status(200).json({
         success:true,order
@@ -70,7 +72,7 @@ app.post("/checkout",verifyFirebaseToken,async(req,res)=>{
 
 app.post("/paymentverification",async(req,res)=>{
     const {razorpay_payment_id,razorpay_order_id,razorpay_signature}=req.body;
-    console.log(req.body);
+    logger.info(req.body);
    const body = razorpay_order_id + "|" +razorpay_payment_id;
    const expectedsignature =crypto.createHmac('sha256',process.env.RAZORPAY_API_SECRET).update(body.toString()).digest('hex');
    if(expectedsignature === razorpay_signature){
@@ -91,7 +93,7 @@ app.post("/paymentverification",async(req,res)=>{
             transactionId: razorpay_payment_id,
         });
     } catch (error) {
-        console.error('Error adding email job to queue:', error);
+        logger.error('Error adding email job to queue:', error);
     }
     // res.status(200).send(changing); 
     res.redirect(`https://chat-town.netlify.app/Home/paymentsuccess?reference=${razorpay_payment_id}`);
@@ -105,7 +107,7 @@ app.post("/paymentverification",async(req,res)=>{
 
 if(require.main===module){
    app.listen(port,()=>{
-    console.log(`Server is running`)
+    logger.info(`Server is running`)
 });
 }
 

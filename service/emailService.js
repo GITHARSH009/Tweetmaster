@@ -1,4 +1,5 @@
 const brevo = require('@getbrevo/brevo');
+const {logger}=require("../middleware/logger");
 
 // Initialize Brevo API
 let apiInstance = new brevo.TransactionalEmailsApi();
@@ -140,10 +141,10 @@ const sendEmailNotification = async ({
 
   try {
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('✅ Payment confirmation email sent successfully!');
+    logger.info('✅ Payment confirmation email sent successfully!');
     return { success: true, data };
   } catch (error) {
-    console.error('❌ Error sending payment email:', error);
+    logger.error('❌ Error sending payment email:', error);
     return { success: false, error: error.message };
   }
 };

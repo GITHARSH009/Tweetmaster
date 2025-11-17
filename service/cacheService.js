@@ -1,4 +1,5 @@
 const redisClient = require("../config/redis");
+const {logger}=require("../middleware/logger");
 
 const Cache_Expiry = 10 * 60 * 60; // 10 hours
 const Cache_Prefix = "userPosts";
@@ -7,12 +8,12 @@ const getCache = async (key) => {
     try {
         const data=await redisClient.get(`${Cache_Prefix}:${key}`);
         if(!data || data.length===0){
-            console.log("Cache Miss");
+            logger.info("Cache Miss");
             return null;
         }
         return JSON.parse(data);
     } catch (error) {
-        console.log("Error in getCache:", error);
+        logger.info("Error in getCache:", error);
         return null;
     }
 };
@@ -23,7 +24,7 @@ const setCache = async (key, value, expiry = Cache_Expiry) => {
         await redisClient.setEx(`${Cache_Prefix}:${key}`,expiry,stringData);
         return true;
     } catch (error) {
-        console.log("Error in setCache:", error);
+        logger.info("Error in setCache:", error);
         return false;
     }
 };
@@ -33,7 +34,7 @@ const delCache = async (key) => {
         await redisClient.del(`${Cache_Prefix}:${key}`);
         return true;
     } catch (error) {
-        console.log("Error in delCache:", error);
+        logger.info("Error in delCache:", error);
         return false;
     }
 };
