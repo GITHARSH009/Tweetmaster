@@ -1,0 +1,13 @@
+name: Daily-Trigger
+
+on:
+  schedule:
+    - cron: '0 10,18 * * *'
+  workflow_dispatch:   
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Daily Trigger Workflow"    
+      run: curl https://tweetmaster.onrender.com/health
