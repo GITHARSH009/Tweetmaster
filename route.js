@@ -220,10 +220,22 @@ router.patch('/userUpdates/:Email',async(req,res)=>{
 
 router.post("/register",async(req,res)=>{
     try {
+        const {Email, Username, Name}=req.body;
+        logger.info(`here is the email of the user ${Email.toLowerCase()}:`);
+        const existingUser=await userdatas.find({Email:Email.toLowerCase()});
+        if(existingUser!=null && existingUser!=""){
+            logger.info(`User Already registered`);
+            return res.status(200).send(existingUser);
+        }
         const newuser=new userdatas(req.body);
         await newuser.save();
         res.status(201).send(newuser);
     } catch (error) {
+        if (error.code === 11000) {
+            const existingUser = await userdatas.findOne({ Email: req.body.Email });
+            logger.info("User Already registered");
+            return res.status(200).send(existingUser);
+        }
         res.status(402).send(`Unknown Error:${error}`);
     }
 });
