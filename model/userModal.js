@@ -21,6 +21,8 @@ const userdata=new mongoose.Schema({
         type:String,
         required:true,
         lowercase:true,
+        unique:true,
+        index:true,
         trim:true
     },
     coverImage:{
