@@ -223,7 +223,7 @@ router.post("/register",async(req,res)=>{
         const {Email, Username, Name}=req.body;
         logger.info(`here is the email of the user ${Email.toLowerCase()}:`);
         const existingUser=await userdatas.find({Email:Email.toLowerCase()});
-        if(existingUser!=null && existingUser!=""){
+        if(existingUser && existingUser._id){
             logger.info(`User Already registered`);
             return res.status(200).send(existingUser);
         }
