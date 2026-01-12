@@ -117,8 +117,8 @@ const sendEmailNotification = async ({
         </div>
         
         <div class="footer">
-            <p><strong>Your Website Name</strong></p>
-            <p>© 2025 Your Website. All rights reserved.</p>
+            <p><strong>CHAT TOWN</strong></p>
+            <p>© 2026 Chat-Town. All rights reserved.</p>
         </div>
     </div>
 </body>
