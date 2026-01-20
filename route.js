@@ -7,13 +7,14 @@ const post=require("./model/postModal");
 const userdatas=require("./model/userModal");
 const Notification = require("./model/notificationModel");
 const dotenv=require('dotenv');
+const {getAllOnlineUsers,markUserOnline}=require('./middleware/presence')
 dotenv.config();
 const {getCache,setCache,delCache}=require("./service/cacheService");
 const cacheKey="allPosts";
 const fetchWithRetry = require('./utility/fetchWithRetry');
 
 const verifyFirebaseToken = require('./middleware/authmiddleware');
-// router.use(verifyFirebaseToken);
+router.use(markUserOnline);
 
 // News API endpoint
 router.get("/news", async (req, res) => {
@@ -306,5 +307,9 @@ router.get("/getuser/:Email",async(req,res)=>{
         res.status(402).send(`Unknown Error:${error}`);
     }
 });
+
+// router.get("/getOnlineUsers",verifyFirebaseToken,getAllOnlineUsers);
+router.get("/getOnlineUsers",getAllOnlineUsers);
+
 
 module.exports=router;
